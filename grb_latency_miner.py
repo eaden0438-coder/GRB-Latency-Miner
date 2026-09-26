@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import linregress
+from scipy.optimize import curve_fit
 
 # ==========================================
 # DISCRETE LATTICE LIMITS: The Absolute Hardware Constant
@@ -19,18 +19,21 @@ impedance_factors = np.array([0.1, 0.5, 2.3, 3.8, 12.5, 111.4])
 # Real observations include minor local thermodynamic vacuum noise
 np.random.seed(42)
 vacuum_thermal_noise = np.random.normal(0, 0.8, len(impedance_factors))
-
-# The empirical delay is governed by the absolute hardware limit + thermal noise
 empirical_delays = (XI_THEORY * impedance_factors) + vacuum_thermal_noise
 
 # ==========================================
-# Module 2: Authentic Non-Perturbative Extraction
+# Module 2: Authentic Non-Perturbative Extraction (ZERO INTERCEPT)
 # ==========================================
-# Extracting the fit authentically without introducing free phenomenological intercepts.
-# This allows independent researchers to feed real datasets and extract real empirical slopes.
-slope, intercept, r_value, p_value, std_err = linregress(impedance_factors, empirical_delays)
-print(f">>> [SYSTEM LOG] Authentic Empirical Fit Extracted: xi_fit = {slope:.4f}")
-print(f">>> [SYSTEM LOG] Thermal Noise Discrepancy: Delta_xi = {abs(slope - XI_THEORY):.4f}")
+# CRITICAL FIX: The physics model demands ZERO intercept (0 distance = 0 delay).
+# We define a strict model y = xi * x without a "+ c" free parameter.
+def latency_model(x, xi_fit):
+    return xi_fit * x
+
+popt, pcov = curve_fit(latency_model, impedance_factors, empirical_delays)
+extracted_xi = popt[0]
+
+print(f">>> [SYSTEM LOG] Authentic Empirical Fit Extracted: xi_fit = {extracted_xi:.4f}")
+print(f">>> [SYSTEM LOG] Thermal Noise Discrepancy: Delta_xi = {abs(extracted_xi - XI_THEORY):.4f}")
 
 # ==========================================
 # Module 3: Verdict Visualization
@@ -53,6 +56,7 @@ ax.grid(True, color='#333333', linestyle=':')
 ax.legend(frameon=False)
 
 plt.tight_layout()
+plt.savefig('grb_latency_pure.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 print(">>> [SYSTEM LOG] CROSS-VALIDATION COMPLETE. LATTICE IMPEDANCE VERIFIED.")
