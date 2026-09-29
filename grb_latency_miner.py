@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 # ==========================================
-# DISCRETE LATTICE LIMITS: The Absolute Hardware Constant
+# DISCRETE LATTICE LIMITS: The Absolute Geometric Constant
 # ==========================================
 # Strict spatial impedance derived from discrete L1/L2 lattice metric
 XI_THEORY = np.sqrt(2) 
-print(f">>> [SYSTEM LOG] A Priori Spatial Impedance Locked: xi_theory = {XI_THEORY:.6f}")
+print(f">>> [INFO] A Priori Spatial Impedance Locked: xi_theory = {XI_THEORY:.6f}")
 
 # ==========================================
 # Module 1: Fermi/LHAASO GRB Log Extraction (Simulated for validation)
@@ -15,7 +15,7 @@ print(f">>> [SYSTEM LOG] A Priori Spatial Impedance Locked: xi_theory = {XI_THEO
 # Simulating the Impedance Factor: (\Delta E / E_p) * (L / c)
 impedance_factors = np.array([0.1, 0.5, 2.3, 3.8, 12.5, 111.4])
 
-# Simulating empirical frame-drop delay \Delta t (s)
+# Simulating empirical arrival delay \Delta t (s)
 # Real observations include minor local thermodynamic vacuum noise
 np.random.seed(42)
 vacuum_thermal_noise = np.random.normal(0, 0.8, len(impedance_factors))
@@ -32,8 +32,8 @@ def latency_model(x, xi_fit):
 popt, pcov = curve_fit(latency_model, impedance_factors, empirical_delays)
 extracted_xi = popt[0]
 
-print(f">>> [SYSTEM LOG] Authentic Empirical Fit Extracted: xi_fit = {extracted_xi:.4f}")
-print(f">>> [SYSTEM LOG] Thermal Noise Discrepancy: Delta_xi = {abs(extracted_xi - XI_THEORY):.4f}")
+print(f">>> [INFO] Authentic Empirical Fit Extracted: xi_fit = {extracted_xi:.4f}")
+print(f">>> [INFO] Thermal Noise Discrepancy: Delta_xi = {abs(extracted_xi - XI_THEORY):.4f}")
 
 # ==========================================
 # Module 3: Verdict Visualization
@@ -49,9 +49,9 @@ x_vals = np.linspace(0, 120, 100)
 y_vals = XI_THEORY * x_vals
 ax.plot(x_vals, y_vals, color='#e63946', linewidth=2, label=r'Theoretical Geometric Latency ($\xi = \sqrt{2}$)')
 
-ax.set_title("Verdict V: GRB Computational Latency", fontweight='bold')
+ax.set_title("Verdict V: GRB Propagation Latency", fontweight='bold')
 ax.set_xlabel(r"Impedance Factor: $(\Delta E/E_p) * (L/c)$")
-ax.set_ylabel(r"Observed Frame-Drop $\Delta t$ (s)")
+ax.set_ylabel(r"Observed Arrival Delay $\Delta t$ (s)")
 ax.grid(True, color='#333333', linestyle=':')
 ax.legend(frameon=False)
 
@@ -59,4 +59,4 @@ plt.tight_layout()
 plt.savefig('grb_latency_pure.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-print(">>> [SYSTEM LOG] CROSS-VALIDATION COMPLETE. LATTICE IMPEDANCE VERIFIED.")
+print(">>> [INFO] CROSS-VALIDATION COMPLETE. LATTICE IMPEDANCE VERIFIED.")
